@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH (Docker)
+        if: vars.DEPLOY_METHOD == 'docker'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ vars.APP_DIR || '/opt/pdos/backend' }}
+            git fetch origin
+            git checkout main
+            git pull origin main
+            docker compose up -d --build
+            echo "Deploy complete (Docker)"
+
+      - name: Deploy via SSH (bare-metal)
+        if: vars.DEPLOY_METHOD != 'docker'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ vars.APP_DIR || '/opt/pdos/backend' }}
+            git fetch origin
+            git checkout main
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt --quiet
+            python scripts/init_prod_db.py
+            sudo systemctl restart pdos-backend
+            echo "Deploy complete (bare-metal)"

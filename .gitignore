@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+.env
+pdos.db
+.pytest_cache/
+uploads/
+dev_scripts/
+
+deploy/.env.production
+uploads/
+*.db
+backups/
+*.sql.gz
+*.tar.gz
