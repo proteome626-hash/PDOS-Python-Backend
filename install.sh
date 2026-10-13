@@ -13,6 +13,9 @@
 # Env: REPO_URL, BRANCH (default main), APP_DIR (default /opt/pdos)
 set -euo pipefail
 
+REPO_URL="${REPO_URL:-https://github.com/proteome626-hash/PDOS-Python-Backend.git}"
+BRANCH="${BRANCH:-main}"
+
 log() { echo -e "\033[0;32m[✓]\033[0m $1"; }
 die() { echo -e "\033[0;31m[!]\033[0m $1" >&2; exit 1; }
 
